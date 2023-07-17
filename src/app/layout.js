@@ -1,5 +1,7 @@
+import Navbar from '@/components/Navbar'
 import './globals.css'
 import { Inter } from 'next/font/google'
+import TopBar from '@/components/TopBar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -11,7 +13,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} flex flex-col h-screen relative overflow-hidden`}>
+        <Navbar />
+        <div className='h-full bg-white text-black p-4 md:px-16 lg:px-40 md:pt-10' data-theme="light">
+          <TopBar />
+          {children}
+        </div>
+      </body>
     </html>
   )
 }
