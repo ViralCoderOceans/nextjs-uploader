@@ -1,21 +1,16 @@
 export const TABS = [
   {
     id: 1,
-    name: 'Facebook-page',
+    name: 'Facebook',
     path: 'to-facebook-page'
   },
   {
     id: 2,
-    name: 'Facebook-account',
-    path: 'to-facebook-account'
-  },
-  {
-    id: 3,
     name: 'Instagram',
     path: 'to-instagram'
   },
   {
-    id: 4,
+    id: 3,
     name: 'Youtube',
     path: 'to-youtube'
   },
