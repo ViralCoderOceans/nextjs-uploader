@@ -1,11 +1,6 @@
-import axios from 'axios'
 import React from 'react'
 
 const page = () => {
-
-  const demo = () => {
-    axios.get('https://api.pinterest.com/v5/user_account').then((res) => console.log(res)).catch((err) => console.log(err))
-  }
   return (
     <main className="flex min-h-screen flex-col">
       <div className='flex justify-center'>
@@ -24,7 +19,6 @@ const page = () => {
             <input type="file" className="file-input file-input-bordered w-full max-w-xs" />
           </div>
           <button className="btn w-full">Post</button>
-          <button onClick={demo} className="btn w-full">Pinterest Call</button>
         </div>
       </div>
     </main>
