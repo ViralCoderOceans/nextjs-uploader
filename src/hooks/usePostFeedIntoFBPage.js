@@ -4,10 +4,10 @@ import { useCallback, useState } from 'react'
 
 const usePostFeedIntoFBPage = () => {
 
-  const postFBPageFeed = useCallback(async (myToken, obj) => {
+  const postFBPageFeed = useCallback(async (myToken, obj, path) => {
     const options = {
       method: 'POST',
-      url: `${BASE_URL}/${FB_PAGE_ID}/photos`,
+      url: `${BASE_URL}/${FB_PAGE_ID}/${path}`,
       params: {
         access_token: myToken
       },

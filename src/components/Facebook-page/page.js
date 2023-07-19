@@ -3,13 +3,16 @@ import useGetFBPageAccessToken from '@/hooks/useGetFBAccessToken'
 import usePostFeedIntoFBPage from '@/hooks/usePostFeedIntoFBPage'
 import React, { useContext, useEffect, useState } from 'react'
 import { FacebookLoginButton } from 'react-social-login-buttons'
+import { UploadButton } from 'react-uploader'
+import { Uploader } from "uploader";
 import { LoginSocialFacebook } from 'reactjs-social-login'
 
 const page = () => {
   const [obj, setObj] = useState({})
   console.log('obj: ', obj);
   const [isLink, setIsLink] = useState(false)
-  const [isPhoto, setIsPhoto] = useState(false)
+  const [imageName, setImageName] = useState()
+  const [isPhoto, setIsPhoto] = useState(true)
   const { fbLoginData, setFbLoginData, isFBLogin, setIsFBLogin } = useContext(accessTokenContext)
   const { postFBPageFeed } = usePostFeedIntoFBPage()
   const { fbPageAccessToken, getFbPageAccessToken } = useGetFBPageAccessToken()
@@ -18,9 +21,21 @@ const page = () => {
       getFbPageAccessToken(fbLoginData.accessToken)
     }
   }, [isFBLogin])
-  const handleSubmit = () => {
-    postFBPageFeed(fbPageAccessToken, obj)
+  const handleFileOnChange = (path) => {
+    setObj({ ...obj, url: path })
   }
+  const handleSubmit = () => {
+    if (isPhoto && obj.url) {
+      postFBPageFeed(fbPageAccessToken, obj, 'photos')
+    } else if (obj.link) {
+      postFBPageFeed(fbPageAccessToken, obj, 'feed')
+    } else {
+      alert('Empty field on allowed')
+    }
+  }
+
+  const uploader = Uploader({ apiKey: "public_kW15bXd4isLTNcPdgjNbAT98EkwJ" })
+
   return (
     <main className="flex min-h-screen flex-col">
       <div className='flex justify-center'>
@@ -33,58 +48,69 @@ const page = () => {
                   <div className='flex items-center'>
                     <div className="avatar mx-3">
                       <div className="w-10 rounded-full border">
-                        <img src={fbLoginData.picture?.data.url} />
+                        <img src={fbLoginData?.picture?.data.url} />
                       </div>
                     </div>
-                    <h1 className='text-lg font-medium'>{fbLoginData.name}</h1>
+                    <h1 className='text-lg font-medium'>{fbLoginData?.name}</h1>
                   </div>
                 </div>
                 <hr className='my-4' />
                 <h1 className='text-3xl font-medium'>Create post</h1>
                 <hr className='my-4' />
                 <div className='bg-base-300 p-4 rounded-2xl'>
-                  <div className="form-control w-full pb-4">
-                    <label className="label">
-                      <span className="text-base font-medium">Write text message</span>
-                    </label>
-                    <textarea onChange={(e) => setObj({ ...obj, message: e.target.value })} className="textarea textarea-bordered textarea-primary" placeholder="Type text here" />
+                  <div className="flex justify-center bg-base-200 p-1 rounded-lg">
+                    <button onClick={() => setIsPhoto(false)} className={`cursor-pointer basis-1/2 flex justify-center text-lg font-medium py-1 ${isPhoto ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} rounded-lg transition-all`}>
+                      Attach Link
+                    </button>
+                    <button onClick={() => setIsPhoto(true)} className={`cursor-pointer basis-1/2 flex justify-center text-lg font-medium py-1 ${!isPhoto ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} hover:bg-neutral hover:text-white rounded-lg transition-all`}>
+                      Upload local File
+                    </button>
                   </div>
-                  <div className="form-control">
-                    <label className="label cursor-pointer">
-                      <span className="text-base font-medium">Do you want to attach link?</span>
-                      <input onChange={() => setIsLink(isLink ? false : true)} type="checkbox" className="toggle toggle-primary" checked={isLink} />
-                    </label>
-                  </div>
-                  {isLink &&
-                    <div className="form-control w-full py-4 pt-0">
-                      <label className="label">
-                        <span className="text-base font-medium">Attach your link here</span>
-                      </label>
-                      <input
-                        onChange={(e) => {
-                          if (isLink && (e.target.value !== '')) {
-                            setObj({ ...obj, link: e.target.value })
-                          }
-                        }}
-                        type="text"
-                        placeholder="Type link here"
-                        className="input input-bordered input-primary w-full"
-                      />
-                    </div>
-                  }
-                  <div className="form-control">
-                    <label className="label cursor-pointer">
-                      <span className="text-base font-medium">Do you want to attach photo?</span>
-                      <input onChange={() => setIsPhoto(isPhoto ? false : true)} type="checkbox" className="toggle toggle-primary" checked={isPhoto} />
-                    </label>
-                  </div>
-                  {isPhoto &&
-                    <div>
+                  {isPhoto
+                    ? <div>
                       <label className="label">
                         <span className="label-text">{'Import files (.jpeg, .jpg, .png)'}</span>
                       </label>
-                      <input onChange={(e) => setObj({ ...obj, url: URL.createObjectURL(e.target.files[0]) })} type="file" className="file-input file-input-bordered file-input-primary w-full" />
+                      <UploadButton
+                        uploader={uploader}
+                        onComplete={(files) => {
+                          if (files) {
+                            setImageName(files[0]?.originalFile.file.name)
+                            handleFileOnChange(files.map(x => x.fileUrl).join("\n"))
+                          }
+                        }}
+                      >
+                        {({ onClick }) =>
+                          <div className="rounded-lg text-white flex justify-start bg-neutral border border-neutral overflow-hidden items-center cursor-pointer" onClick={onClick}>
+                            <h1 className='p-3 basis-1/4 text-lg font-medium text-center'>CHOOSE FILE</h1>
+                            <div className='p-3 basis-3/4 text-lg bg-white text-neutral font-medium '>{imageName || 'No file chosen'}</div>
+                          </div>
+                        }
+                      </UploadButton>
                     </div>
+                    : <>
+                      <div className="form-control w-full pb-4">
+                        <label className="label">
+                          <span className="text-base font-medium">Write text message</span>
+                        </label>
+                        <textarea onChange={(e) => setObj({ ...obj, message: e.target.value })} className="textarea textarea-bordered textarea-primary" placeholder="Type text here" />
+                      </div>
+                      <div className="form-control w-full">
+                        <label className="label">
+                          <span className="text-base font-medium">Attach your link here</span>
+                        </label>
+                        <input
+                          onChange={(e) => {
+                            if ((e.target.value !== '')) {
+                              setObj({ ...obj, link: e.target.value })
+                            }
+                          }}
+                          type="text"
+                          placeholder="Type link here"
+                          className="input input-bordered input-primary w-full"
+                        />
+                      </div>
+                    </>
                   }
                 </div>
                 <hr className='my-4' />
@@ -101,7 +127,6 @@ const page = () => {
                   <LoginSocialFacebook
                     appId='211579308138783'
                     onResolve={(res) => {
-                      console.log('FB-login-data:', res.data)
                       setFbLoginData(res.data)
                       setIsFBLogin(true)
                     }}
