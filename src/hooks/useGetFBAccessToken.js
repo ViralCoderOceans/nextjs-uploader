@@ -1,24 +1,23 @@
-import { SHORT_TIME_FB_AT } from '@/constants/constants'
+import { FB_PAGE_ID } from '@/constants/constants'
 import axios from 'axios'
 import { useCallback, useState } from 'react'
 
-const useGetFBAccessToken = () => {
-  const [fbAccessToken, setFbAccessToken] = useState()
+const useGetFBPageAccessToken = () => {
+  const [fbPageAccessToken, setFbPageAccessToken] = useState()
 
-  const getFbAccessToken = useCallback(async (api_url) => {
+  const getFbPageAccessToken = useCallback(async (token) => {
     const options = {
       method: 'GET',
-      url: 'https://graph.facebook.com/oauth/access_token',
+      url: `https://graph.facebook.com/${FB_PAGE_ID}`,
       params: {
-        grant_type: 'fb_exchange_token',
-        client_id: '211579308138783',
-        client_secret: '87355bfc1bd922d927f750b40f5cf424',
-        fb_exchange_token: SHORT_TIME_FB_AT
+        fields: 'access_token',
+        access_token: token
       }
     }
     await axios.request(options).then((response) => {
       if (response.status === 200) {
-        setFbAccessToken(response.data.access_token)
+        setFbPageAccessToken(response.data.access_token)
+        console.log('FB-page-access-token:', response.data.access_token)
       } else {
         console.error('Error--------', response)
       }
@@ -26,7 +25,7 @@ const useGetFBAccessToken = () => {
   }, [])
 
 
-  return { getFbAccessToken, fbAccessToken }
+  return { fbPageAccessToken, getFbPageAccessToken }
 }
 
-export default useGetFBAccessToken
+export default useGetFBPageAccessToken

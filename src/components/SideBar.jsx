@@ -9,7 +9,7 @@ const SideBar = () => {
   const { uploadByName } = useParams()
   return (
     <>
-      <ul className="menu menu-lg bg-slate-200 border border-base-content border-e-0 rounded-2xl">
+      <ul className="menu menu-lg bg-base-300 rounded-2xl">
         {
           TABS.map((elm) => (
             <li key={elm.id}>

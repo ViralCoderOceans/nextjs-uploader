@@ -1,24 +1,40 @@
+"use client"
+
 import Navbar from '@/components/Navbar'
 import './globals.css'
 import { Inter } from 'next/font/google'
 import SideBar from '@/components/SideBar'
+import { createContext, useState } from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata = {
-  title: 'UPLOADER',
-}
+export const accessTokenContext = createContext()
 
 export default function RootLayout({ children }) {
+  const [fbLoginData, setFbLoginData] = useState()
+  const [isFBLogin, setIsFBLogin] = useState(false)
   return (
     <html lang="en">
+      <head>
+        <title>UPLOADER</title>
+        {/* <link rel="icon" href="/favicon.ico" sizes="any" /> */}
+      </head>
       <body className={`${inter.className} flex flex-col h-screen relative overflow-hidden`}>
         <Navbar />
         <div className='h-full bg-white flex text-black p-4' data-theme="light">
           <SideBar />
-          <div className='w-full h-full border border-base-content rounded-2xl p-5'>
-            {children}
-          </div>
+          <accessTokenContext.Provider
+            value={{
+              fbLoginData,
+              setFbLoginData,
+              isFBLogin,
+              setIsFBLogin
+            }}
+          >
+            <div className='w-full h-full bg-accent rounded-2xl p-5'>
+              {children}
+            </div>
+          </accessTokenContext.Provider>
         </div>
       </body>
     </html>

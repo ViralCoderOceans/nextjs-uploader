@@ -18,6 +18,4 @@ export const TABS = [
 
 export const BASE_URL = 'https://graph.facebook.com/v17.0/'
 
-export const PAGE_ID = '106338012535000'
-
-export const SHORT_TIME_FB_AT = 'EAADAbiWA4R8BAB6JM6ZCfu1FRpPRhHXkqNdfDJKVF02jov3svIosgdi5yuEC1W7dQQZAKJlztgmGnmOGyyQ0KNNKRnfvTQUMtohYjx0ZASSMTKsrDDFzGLhxO7hX2XZAhxyFqetgJz6IYNZCqEKHqO2XITP1ZAIIbZCiQPKEMQqYxsQvcAoy3QPzR6qwshQwvmSLhT6GZC9FVoY9bZBU07KbD'
+export const FB_PAGE_ID = '106338012535000'

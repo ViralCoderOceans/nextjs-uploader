@@ -1,4 +1,4 @@
-import { BASE_URL, PAGE_ID, SHORT_TIME_FB_AT } from '@/constants/constants'
+import { BASE_URL, FB_PAGE_ID } from '@/constants/constants'
 import axios from 'axios'
 import { useCallback, useState } from 'react'
 
@@ -7,7 +7,7 @@ const usePostFeedIntoFBPage = () => {
   const postFBPageFeed = useCallback(async (myToken, obj) => {
     const options = {
       method: 'POST',
-      url: `${BASE_URL}/${PAGE_ID}/feed`,
+      url: `${BASE_URL}/${FB_PAGE_ID}/photos`,
       params: {
         access_token: myToken
       },
