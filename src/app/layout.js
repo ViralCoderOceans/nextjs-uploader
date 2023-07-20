@@ -13,6 +13,7 @@ export const accessTokenContext = createContext()
 export default function RootLayout({ children }) {
   const [fbLoginData, setFbLoginData] = useState()
   const [isFBLogin, setIsFBLogin] = useState(false)
+  const [isFBPosting, setIsFBPosting] = useState(false)
   return (
     <html lang="en">
       <head>
@@ -28,7 +29,9 @@ export default function RootLayout({ children }) {
               fbLoginData,
               setFbLoginData,
               isFBLogin,
-              setIsFBLogin
+              setIsFBLogin,
+              isFBPosting,
+              setIsFBPosting
             }}
           >
             <div className='w-full h-full bg-accent rounded-2xl p-5'>

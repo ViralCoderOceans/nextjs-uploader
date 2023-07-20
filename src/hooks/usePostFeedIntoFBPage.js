@@ -1,24 +1,23 @@
 import { BASE_URL, FB_PAGE_ID } from '@/constants/constants'
 import axios from 'axios'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
 const usePostFeedIntoFBPage = () => {
 
-  const postFBPageFeed = useCallback(async (myToken, obj, path) => {
+  const postFBPageFeed = useCallback(async (obj, path, notify, notifyError) => {
     const options = {
       method: 'POST',
       url: `${BASE_URL}/${FB_PAGE_ID}/${path}`,
-      params: {
-        access_token: myToken
-      },
-      data: obj
+      params: obj,
     }
     await axios.request(options).then((response) => {
       if (response.status === 200) {
+        notify('Posted successfully on facebook.')
         console.log(response)
-      } else {
-        console.error('Error--------', response)
       }
+    }).catch((error) => {
+      notifyError('An error occur.')
+      console.error('Error--------', error)
     })
   }, [])
 
