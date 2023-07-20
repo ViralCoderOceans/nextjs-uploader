@@ -11,15 +11,14 @@ const inter = Inter({ subsets: ['latin'] })
 export const accessTokenContext = createContext()
 
 export default function RootLayout({ children }) {
-  const [fbLoginData, setFbLoginData] = useState()
+  const [fbLoginData, setFbLoginData] = useState({})
   const [isFBLogin, setIsFBLogin] = useState(false)
   const [isFBPosting, setIsFBPosting] = useState(false)
 
   useEffect(() => {
-    if (localStorage.getItem('isFBLogin')) {
-      setIsFBLogin(localStorage.getItem('isFBLogin'))
-    } else {
-      localStorage.setItem('isFBLogin', isFBLogin)
+    setIsFBLogin(localStorage.getItem('isFBLogin') ? true : false)
+    if (localStorage.getItem('fbLoginData')) {
+      setFbLoginData(localStorage.getItem('fbLoginData'))
     }
   }, [])
 
@@ -31,7 +30,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${inter.className} flex flex-col h-screen relative overflow-hidden`}>
         <Navbar />
-        <div className='h-full bg-white flex text-black p-4' data-theme="light">
+        <div className='h-screen bg-white flex text-black p-4 overflow-y-auto' data-theme="light">
           <SideBar />
           <accessTokenContext.Provider
             value={{
@@ -43,7 +42,7 @@ export default function RootLayout({ children }) {
               setIsFBPosting
             }}
           >
-            <div className='w-full h-full bg-accent rounded-2xl p-5'>
+            <div className='w-full bg-accent rounded-2xl p-5'>
               {children}
             </div>
           </accessTokenContext.Provider>
