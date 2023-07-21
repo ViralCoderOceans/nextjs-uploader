@@ -13,21 +13,29 @@ const page = () => {
   const [linkObj, setLinkObj] = useState({})
   const [photoObj, setPhotoObj] = useState({})
   const [videoObj, setVideoObj] = useState({})
-  console.log('videoObj: ', videoObj)
-  // console.log('linkObj: ', setLinkObj)
   const [imageName, setImageName] = useState()
+  const [videoName, setVideoName] = useState()
   const [uploadType, setUploadType] = useState({ isLink: true })
-  const { fbLoginData, setFbLoginData, isFBLogin, setIsFBLogin, isFBPosting, setIsFBPosting } = useContext(accessTokenContext)
+  const {
+    fbLoginData,
+    setFbLoginData,
+    isFBPosting,
+    setIsFBPosting,
+    updateFBLocalStorage
+  } = useContext(accessTokenContext)
   const { postFBPageFeed } = usePostFeedIntoFBPage()
-  const { fbPageAccessToken, getFbPageAccessToken } = useGetFBPageAccessToken()
+  const { fbPageAccessToken, setFbPageAccessToken, getFbPageAccessToken } = useGetFBPageAccessToken()
 
   useEffect(() => {
-    localStorage.setItem('fbLoginData', fbLoginData)
-  }, [fbLoginData])
+    setFbPageAccessToken(localStorage.getItem('fbPageAccessToken') ? JSON.parse(localStorage.getItem('fbPageAccessToken')) : null)
+  }, [])
 
   useEffect(() => {
-    if (isFBLogin === true) {
-      // getFbPageAccessToken(fbLoginData.accessToken)
+    if (fbLoginData) {
+      if (!fbPageAccessToken) {
+        console.log('Facebook-get-page-access-token-API-called.')
+        getFbPageAccessToken(fbLoginData.accessToken)
+      }
       setLinkObj({
         ...linkObj,
         access_token: fbPageAccessToken
@@ -41,33 +49,12 @@ const page = () => {
         access_token: fbPageAccessToken
       })
     }
-  }, [isFBLogin])
-
-  useEffect(() => {
-    setLinkObj({
-      ...linkObj,
-      access_token: fbPageAccessToken
-    })
-  }, [fbPageAccessToken])
-
-  useEffect(() => {
-    if (uploadType.isPhoto) {
-      setLinkObj({
-        message: linkObj.message || '',
-        access_token: fbPageAccessToken
-      })
-    } else {
-      setLinkObj({
-        message: linkObj.message || '',
-        access_token: fbPageAccessToken
-      })
-    }
-  }, [uploadType.isPhoto])
+  }, [fbLoginData])
 
   const handleSubmit = () => {
     setIsFBPosting(true)
-    if (uploadType.isPhoto && linkObj.url) {
-      postFBPageFeed(linkObj, 'photos', notify, notifyError)
+    if (uploadType.isPhoto && photoObj.url) {
+      postFBPageFeed(photoObj, 'photos', notify, notifyError)
     } else if (uploadType.isVideo && videoObj.file_url) {
       postFBPageFeed(videoObj, 'videos', notify, notifyError)
     } else if (uploadType.isLink && (linkObj.link || linkObj.message)) {
@@ -116,7 +103,7 @@ const page = () => {
       <div className='flex justify-center'>
         <div className='flex flex-col w-full'>
           {
-            isFBLogin
+            fbLoginData
               ? <>
                 <div className='flex justify-between items-center'>
                   <h1 className='text-3xl font-medium'>You're logged-in :</h1>
@@ -179,7 +166,7 @@ const page = () => {
                         <label className="label">
                           <span className="text-base font-medium">Photo caption :</span>
                         </label>
-                        <textarea onChange={(e) => setLinkObj({ ...linkObj, message: e.target.value })} className="textarea textarea-bordered textarea-primary" value={linkObj.message || ''} placeholder="Type text here" />
+                        <textarea onChange={(e) => setPhotoObj({ ...photoObj, message: e.target.value })} className="textarea textarea-bordered textarea-primary" value={photoObj.message || ''} placeholder="Type text here" />
                       </div>
                       <label className="label">
                         <span className="text-base font-medium">{'Import photos (.jpeg, .jpg, .png) :'}</span>
@@ -189,7 +176,7 @@ const page = () => {
                         onComplete={(files) => {
                           if (files) {
                             setImageName(files[0]?.originalFile.file.name)
-                            setLinkObj({ ...linkObj, url: files.map(x => x.fileUrl).join("\n") })
+                            setPhotoObj({ ...photoObj, url: files.map(x => x.fileUrl).join("\n") })
                           }
                         }}
                       >
@@ -228,15 +215,15 @@ const page = () => {
                         uploader={uploader}
                         onComplete={(files) => {
                           if (files) {
-                            setImageName(files[0]?.originalFile.file.name)
-                            setVideoObj({ ...videoObj, file_url: files.map(x => x.fileUrl).join("\n"), file_size: files[0]?.originalFile.file.name })
+                            setVideoName(files[0]?.originalFile.file.name)
+                            setVideoObj({ ...videoObj, file_url: files.map(x => x.fileUrl).join("\n"), file_size: files[0]?.originalFile.file.size })
                           }
                         }}
                       >
                         {({ onClick }) =>
                           <div className="rounded-lg text-white flex justify-start bg-neutral border border-neutral overflow-hidden items-center cursor-pointer" onClick={onClick}>
                             <h1 className='p-3 basis-1/4 text-lg font-medium text-center'>CHOOSE VIDEO</h1>
-                            <div className='p-3 basis-3/4 text-lg bg-white text-neutral font-medium '>{imageName || 'No video chosen'}</div>
+                            <div className='p-3 basis-3/4 text-lg bg-white text-neutral font-medium '>{videoName || 'No video chosen'}</div>
                           </div>
                         }
                       </UploadButton>
@@ -259,7 +246,8 @@ const page = () => {
                     appId='211579308138783'
                     onResolve={(res) => {
                       setFbLoginData(res.data)
-                      setIsFBLogin(true)
+                      updateFBLocalStorage()
+                      console.log('Facebook login API called.')
                       notify('Facebook logged-in successfully.')
                     }}
                     onReject={(err) => console.log(err)}

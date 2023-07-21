@@ -11,16 +11,22 @@ const inter = Inter({ subsets: ['latin'] })
 export const accessTokenContext = createContext()
 
 export default function RootLayout({ children }) {
-  const [fbLoginData, setFbLoginData] = useState({})
-  const [isFBLogin, setIsFBLogin] = useState(false)
+  const [fbLoginData, setFbLoginData] = useState(null)
   const [isFBPosting, setIsFBPosting] = useState(false)
 
   useEffect(() => {
-    setIsFBLogin(localStorage.getItem('isFBLogin') ? true : false)
-    if (localStorage.getItem('fbLoginData')) {
-      setFbLoginData(localStorage.getItem('fbLoginData'))
-    }
+    setFbLoginData(localStorage.getItem('fbLoginData') ? JSON.parse(localStorage.getItem('fbLoginData')) : null)
   }, [])
+
+  useEffect(() => {
+    updateFBLocalStorage()
+  }, [fbLoginData])
+
+  const updateFBLocalStorage = () => {
+    if (fbLoginData) {
+      localStorage.setItem('fbLoginData', JSON.stringify(fbLoginData))
+    }
+  }
 
   return (
     <html lang="en">
@@ -36,10 +42,9 @@ export default function RootLayout({ children }) {
             value={{
               fbLoginData,
               setFbLoginData,
-              isFBLogin,
-              setIsFBLogin,
               isFBPosting,
-              setIsFBPosting
+              setIsFBPosting,
+              updateFBLocalStorage
             }}
           >
             <div className='w-full bg-accent rounded-2xl p-5'>

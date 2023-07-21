@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useCallback, useState } from 'react'
 
 const useGetFBPageAccessToken = () => {
-  const [fbPageAccessToken, setFbPageAccessToken] = useState()
+  const [fbPageAccessToken, setFbPageAccessToken] = useState(null)
 
   const getFbPageAccessToken = useCallback(async (token) => {
     const options = {
@@ -17,7 +17,7 @@ const useGetFBPageAccessToken = () => {
     await axios.request(options).then((response) => {
       if (response.status === 200) {
         setFbPageAccessToken(response.data.access_token)
-        console.log('FB-page-access-token:', response.data.access_token)
+        localStorage.setItem('fbPageAccessToken', JSON.stringify(response.data.access_token))
       } else {
         console.error('Error--------', response)
       }
@@ -25,7 +25,7 @@ const useGetFBPageAccessToken = () => {
   }, [])
 
 
-  return { fbPageAccessToken, getFbPageAccessToken }
+  return { fbPageAccessToken, setFbPageAccessToken, getFbPageAccessToken }
 }
 
 export default useGetFBPageAccessToken
