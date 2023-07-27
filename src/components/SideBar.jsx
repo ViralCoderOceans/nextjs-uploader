@@ -11,7 +11,7 @@ const SideBar = () => {
   const { isSidebar } = useContext(accessTokenContext)
   return (
     <>
-      <ul className={`fixed z-[99] h-full w-full md:w-fit menu menu-lg bg-base-300 ${isSidebar ? 'translate-x-0' : '-translate-x-full md:-translate-x-44'} transition-all`}>
+      <ul className={`fixed z-[99] py-10 h-full w-full md:w-fit menu menu-lg bg-base-300 ${isSidebar ? 'translate-x-0' : '-translate-x-full md:-translate-x-44'} transition-all`}>
         {
           TABS.map((elm) => (
             <li key={elm.id}>
