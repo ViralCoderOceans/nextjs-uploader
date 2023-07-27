@@ -312,7 +312,7 @@ const page = () => {
                   }
 
                 </div>
-                <div className='flex flex-col md:flex-col md:justify-between items-center my-4'>
+                <div className='flex md:flex-col md:justify-between items-center my-4'>
                   <button onClick={handleSubmit} className="btn btn-neutral text-white w-full md:w-[200px]">Post</button>
                   <button onClick={() => window.open("https://www.facebook.com/viral.reactjs", "_blank")} className="btn btn-neutral text-white w-full mt-4 md:m-0 md:w-[200px]">Open FB-page</button>
                 </div>
