@@ -55,8 +55,8 @@ const page = () => {
     }
   }
 
-  const notify = (msg) => {
-    toast.success(msg, {
+  const notify = () => {
+    toast.success('Testing...', {
       position: "bottom-right",
       autoClose: 5000,
       hideProgressBar: true,
@@ -71,8 +71,8 @@ const page = () => {
     setIsFBPosting(false)
   }
 
-  const notifyError = (msg) => {
-    toast.error(msg, {
+  const notifyError = () => {
+    toast.error('Testing...', {
       position: "bottom-right",
       autoClose: 5000,
       hideProgressBar: true,
@@ -106,7 +106,7 @@ const page = () => {
       <div className='flex justify-center'>
         <div className='flex flex-col w-full'>
           {
-            fbLoginData
+            !fbLoginData
               ? <div className='transition-all'>
                 <div className='flex justify-between items-center'>
                   <h1 className='text-xl md:text-3xl font-medium'>You're logged-in :</h1>
