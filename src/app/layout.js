@@ -48,13 +48,14 @@ export default function RootLayout({ children }) {
             setIsFBPosting,
             updateFBLocalStorage,
             isSidebar,
+            setIsSidebar,
             handleSidebar
           }}
         >
           <Navbar />
-          <div className='h-full mt-20 bg-accent flex text-black overflow-hidden' data-theme="light">
+          <div className='h-full mt-12 lg:mt-20 bg-accent flex text-black overflow-hidden' data-theme="light">
             <SideBar />
-            <div className={`w-full h-full ${isSidebar ? 'md:ml-[149px]' : 'ml-0'} transition-all overflow-y-auto p-10`}>
+            <div className={`w-full h-full ${isSidebar ? 'md:ml-[149px]' : 'ml-0'} transition-all overflow-y-auto p-4 md:p-8 lg:p-10`}>
               {children}
             </div>
           </div>

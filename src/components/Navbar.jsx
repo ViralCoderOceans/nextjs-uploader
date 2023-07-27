@@ -4,13 +4,12 @@ import React, { useContext } from 'react'
 const Navbar = () => {
 	const { isSidebar, handleSidebar } = useContext(accessTokenContext)
 	return (
-		<div className='fixed w-full z-[99] flex flex-row justify-center lg:justify-start px-4 bg-base-300 text-zinc-900 transition-all'>
-			<label className="fixed left-0 top-0 m-3 lg:m-4 btn btn-circle btn-sm lg:btn-md transition-all swap swap-rotate">
-				<input type="checkbox" onChange={handleSidebar} />
-				<svg className='swap-on fill-current' xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" /></svg>
-				<svg className='swap-off fill-current' xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><polygon points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" /></svg>
+		<div className='fixed w-full z-[999] flex flex-row justify-center lg:justify-start px-4 bg-base-300 text-zinc-900 border-b-2 border-neutral'>
+			<label onClick={handleSidebar} className="fixed left-0 top-0 m-3 lg:m-4 btn btn-circle btn-sm lg:btn-md">
+				{!isSidebar && <svg className='fill-current' xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" /></svg>}
+				{isSidebar && <svg className='fill-current' xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><polygon points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" /></svg>}
 			</label>
-			<h1 className='text-lg md:text-xl lg:text-2xl px-1 lg:px-3 py-3 lg:py-6 lg:ms-16 font-semibold bg-base-200 transition-all select-none'>
+			<h1 className='text-lg md:text-xl border-x-2 border-neutral lg:text-2xl px-1 lg:px-3 py-3 lg:py-6 lg:ms-16 font-semibold bg-base-200 transition-all select-none'>
 				UPLOADER
 			</h1>
 		</div>

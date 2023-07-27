@@ -18,7 +18,6 @@ const usePostFeedIntoFBPage = () => {
       }
     )
       .then((response) => {
-        console.log('response: ', response.data)
         notify('Posted successfully on facebook.')
       })
       .catch((error) => {

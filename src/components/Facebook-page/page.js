@@ -6,16 +6,14 @@ import { FacebookLoginButton } from 'react-social-login-buttons'
 import { LoginSocialFacebook } from 'reactjs-social-login'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import ContentEditable from 'react-contenteditable'
-import placeHolderImg from '../../assets/placeholder.png'
 import SchedulePost from '../SchedulePost/page'
+// import ContentEditable from 'react-contenteditable'
+// import placeHolderImg from '../../assets/placeholder.png'
 
 const page = () => {
   const [linkObj, setLinkObj] = useState({})
   const [photoObj, setPhotoObj] = useState({})
-  console.log('photoObj: ', photoObj);
   const [videoObj, setVideoObj] = useState({})
-  console.log('videoObj: ', videoObj);
   const [previewImg, setPreviewImg] = useState()
   const [previewVideo, setPreviewVideo] = useState()
   const [uploadType, setUploadType] = useState({ isLink: true })
@@ -46,7 +44,6 @@ const page = () => {
   const handleSubmit = () => {
     setIsFBPosting(true)
     if (uploadType.isPhoto && photoObj.source) {
-      console.log('URL.createObjectURL(file): ', URL.createObjectURL(photoObj.source));
       postFBPageFeed(photoObj, 'photos', notify, notifyError, fbPageAccessToken)
     } else if (uploadType.isVideo && videoObj.source) {
       postFBPageFeed(videoObj, 'videos', notify, notifyError, fbPageAccessToken)
@@ -68,9 +65,12 @@ const page = () => {
       draggable: true,
       progress: undefined,
       theme: "light",
-    });
+    })
+    setPreviewImg()
+    setPreviewVideo()
     setIsFBPosting(false)
   }
+
   const notifyError = (msg) => {
     toast.error(msg, {
       position: "bottom-right",
@@ -82,13 +82,10 @@ const page = () => {
       progress: undefined,
       theme: "light",
     })
+    setPreviewImg()
+    setPreviewVideo()
     setIsFBPosting(false)
   }
-
-  const handleScheduleChange = (event) => {
-    const selectedTime = new Date(event.target.value)
-    console.log(Math.floor(selectedTime.getTime() / 1000))
-  };
 
   const [text, setText] = useState('');
 
@@ -112,7 +109,7 @@ const page = () => {
             fbLoginData
               ? <div className='transition-all'>
                 <div className='flex justify-between items-center'>
-                  <h1 className='text-3xl font-medium'>You're logged-in :</h1>
+                  <h1 className='text-xl md:text-3xl font-medium'>You're logged-in :</h1>
                   <div className='flex items-center'>
                     <div className="avatar mx-3">
                       <div className="w-10 rounded-full border-2 border-neutral">
@@ -122,32 +119,9 @@ const page = () => {
                     <h1 className='text-lg font-medium'>{fbLoginData?.name}</h1>
                   </div>
                 </div>
-                <hr className='my-4' />
-                <h1 className='text-3xl font-medium'>Create post</h1>
-                <hr className='my-4' />
+                <hr className='my-2 md:my-4' />
+                <h1 className='text-xl md:text-3xl font-medium mb-2 md:mb-4'>Create post</h1>
                 <div className='bg-base-300 p-4 rounded-2xl'>
-                  {/* <div className="form-control w-full">
-                    <div className="form-control w-full mb-4">
-                      <label className="label">
-                        <span className="text-base font-medium">
-                          {
-                            uploadType.isLink ? "What's on your mind?" : uploadType.isPhoto ? 'Photo caption :' : uploadType.isVideo ? 'Video title :' : "What's on your mind?"
-                          }
-                        </span>
-                      </label>
-                      <textarea onChange={(e) => {
-                        if (uploadType.isLink) {
-                          setLinkObj({ ...linkObj, message: e.target.value })
-                        }
-                        if (uploadType.isPhoto) {
-                          setPhotoObj({ ...photoObj, message: e.target.value })
-                        }
-                        if (uploadType.isVideo) {
-                          setVideoObj({ ...videoObj, title: e.target.value })
-                        }
-                      }} className="textarea textarea-bordered textarea-primary" placeholder="Type text here" />
-                    </div>
-                  </div> */}
                   {
                     uploadType.isLink &&
                     <div className="form-control w-full">
@@ -189,13 +163,13 @@ const page = () => {
                       <span className="text-base font-medium">Select one option :</span>
                     </label>
                     <div className="flex justify-center gap-1 bg-base-200 p-1 rounded-lg">
-                      <button onClick={() => setUploadType({ isLink: true })} className={`cursor-pointer basis-1/2 flex justify-center text-lg font-medium py-1 ${!uploadType.isLink ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} rounded-lg transition-all`}>
+                      <button onClick={() => setUploadType({ isLink: true })} className={`cursor-pointer basis-1/2 flex justify-center md:text-lg font-medium py-1 ${!uploadType.isLink ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} rounded-lg transition-all`}>
                         Attach Link
                       </button>
-                      <button onClick={() => setUploadType({ isPhoto: true })} className={`cursor-pointer basis-1/2 flex justify-center text-lg font-medium py-1 ${!uploadType.isPhoto ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} hover:bg-neutral hover:text-white rounded-lg transition-all`}>
+                      <button onClick={() => setUploadType({ isPhoto: true })} className={`cursor-pointer basis-1/2 flex justify-center md:text-lg font-medium py-1 ${!uploadType.isPhoto ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} hover:bg-neutral hover:text-white rounded-lg transition-all`}>
                         Upload photo
                       </button>
-                      <button onClick={() => setUploadType({ isVideo: true })} className={`cursor-pointer basis-1/2 flex justify-center text-lg font-medium py-1 ${!uploadType.isVideo ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} hover:bg-neutral hover:text-white rounded-lg transition-all`}>
+                      <button onClick={() => setUploadType({ isVideo: true })} className={`cursor-pointer basis-1/2 flex justify-center md:text-lg font-medium py-1 ${!uploadType.isVideo ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} hover:bg-neutral hover:text-white rounded-lg transition-all`}>
                         Upload video
                       </button>
                     </div>
@@ -217,19 +191,19 @@ const page = () => {
                       <SchedulePost
                         isSchedule={isSchedule}
                         setIsSchedule={setIsSchedule}
+                        setPublishNow={() => {
+                          let refObj = linkObj
+                          delete refObj.scheduled_publish_time
+                          delete refObj.published
+                          setLinkObj({ ...refObj })
+                        }}
+                        setSchedule={() => {
+                          setLinkObj({ ...linkObj, published: false })
+                        }}
                         setDateTime={(scheduledTimestamp) => {
                           setLinkObj({ ...linkObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
                         }}
                       />
-                      {/* <input
-                        type="datetime-local"
-                        className='p-2 rounded-md border border-neutral'
-                        value={linkObj.scheduled_publish_time}
-                        onChange={(e) => {
-                          const scheduledTimestamp = new Date(e.target.value).getTime() / 1000
-                          setLinkObj({ ...linkObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
-                        }}
-                      /> */}
                     </div>
                   }
 
@@ -268,6 +242,15 @@ const page = () => {
                       <SchedulePost
                         isSchedule={isSchedule}
                         setIsSchedule={setIsSchedule}
+                        setPublishNow={() => {
+                          let refObj = photoObj
+                          delete refObj.scheduled_publish_time
+                          delete refObj.published
+                          setPhotoObj({ ...refObj })
+                        }}
+                        setSchedule={() => {
+                          setPhotoObj({ ...photoObj, published: false })
+                        }}
                         setDateTime={(scheduledTimestamp) => {
                           setPhotoObj({ ...photoObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
                         }}
@@ -312,6 +295,15 @@ const page = () => {
                       <SchedulePost
                         isSchedule={isSchedule}
                         setIsSchedule={setIsSchedule}
+                        setPublishNow={() => {
+                          let refObj = videoObj
+                          delete refObj.scheduled_publish_time
+                          delete refObj.published
+                          setVideoObj({ ...refObj })
+                        }}
+                        setSchedule={() => {
+                          setVideoObj({ ...videoObj, published: false })
+                        }}
                         setDateTime={(scheduledTimestamp) => {
                           setVideoObj({ ...videoObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
                         }}
@@ -320,14 +312,14 @@ const page = () => {
                   }
 
                 </div>
-                <div className='flex justify-between items-center my-4'>
-                  <button onClick={handleSubmit} className="btn btn-neutral text-white w-[200px]">Post</button>
-                  <button onClick={() => window.open("https://www.facebook.com/viral.reactjs", "_blank")} className="btn btn-neutral text-white w-[200px]">Open FB-page</button>
+                <div className='flex flex-col md:flex-col md:justify-between items-center my-4'>
+                  <button onClick={handleSubmit} className="btn btn-neutral text-white w-full md:w-[200px]">Post</button>
+                  <button onClick={() => window.open("https://www.facebook.com/viral.reactjs", "_blank")} className="btn btn-neutral text-white w-full mt-4 md:m-0 md:w-[200px]">Open FB-page</button>
                 </div>
               </div>
               : <>
                 <h1 className='text-3xl font-medium'>Facebook-login required :</h1>
-                <hr className='my-4' />
+                <hr className='my-2 md:my-4' />
                 <div className='w-fit'>
                   <LoginSocialFacebook
                     appId='211579308138783'
