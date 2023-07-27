@@ -1,21 +1,25 @@
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { accessTokenContext } from '@/app/layout'
 import useGetFBPageAccessToken from '@/hooks/useGetFBAccessToken'
 import usePostFeedIntoFBPage from '@/hooks/usePostFeedIntoFBPage'
-import React, { useContext, useEffect, useState } from 'react'
 import { FacebookLoginButton } from 'react-social-login-buttons'
-import { UploadButton } from 'react-uploader'
-import { Uploader } from "uploader";
 import { LoginSocialFacebook } from 'reactjs-social-login'
 import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'
+import ContentEditable from 'react-contenteditable'
+import placeHolderImg from '../../assets/placeholder.png'
+import SchedulePost from '../SchedulePost/page'
 
 const page = () => {
   const [linkObj, setLinkObj] = useState({})
   const [photoObj, setPhotoObj] = useState({})
+  console.log('photoObj: ', photoObj);
   const [videoObj, setVideoObj] = useState({})
-  const [imageName, setImageName] = useState()
-  const [videoName, setVideoName] = useState()
+  console.log('videoObj: ', videoObj);
+  const [previewImg, setPreviewImg] = useState()
+  const [previewVideo, setPreviewVideo] = useState()
   const [uploadType, setUploadType] = useState({ isLink: true })
+  const [isSchedule, setIsSchedule] = useState(false)
   const {
     fbLoginData,
     setFbLoginData,
@@ -32,40 +36,27 @@ const page = () => {
 
   useEffect(() => {
     if (fbLoginData) {
-      if (!fbPageAccessToken) {
+      if (!localStorage.getItem('fbPageAccessToken')) {
         console.log('Facebook-get-page-access-token-API-called.')
         getFbPageAccessToken(fbLoginData.accessToken)
       }
-      setLinkObj({
-        ...linkObj,
-        access_token: fbPageAccessToken
-      })
-      setPhotoObj({
-        ...photoObj,
-        access_token: fbPageAccessToken
-      })
-      setVideoObj({
-        ...videoObj,
-        access_token: fbPageAccessToken
-      })
     }
-  }, [fbLoginData])
+  }, [fbLoginData, fbPageAccessToken])
 
   const handleSubmit = () => {
     setIsFBPosting(true)
-    if (uploadType.isPhoto && photoObj.url) {
-      postFBPageFeed(photoObj, 'photos', notify, notifyError)
-    } else if (uploadType.isVideo && videoObj.file_url) {
-      postFBPageFeed(videoObj, 'videos', notify, notifyError)
-    } else if (uploadType.isLink && (linkObj.link || linkObj.message)) {
-      postFBPageFeed(linkObj, 'feed', notify, notifyError)
+    if (uploadType.isPhoto && photoObj.source) {
+      console.log('URL.createObjectURL(file): ', URL.createObjectURL(photoObj.source));
+      postFBPageFeed(photoObj, 'photos', notify, notifyError, fbPageAccessToken)
+    } else if (uploadType.isVideo && videoObj.source) {
+      postFBPageFeed(videoObj, 'videos', notify, notifyError, fbPageAccessToken)
+    } else if (uploadType.isLink && linkObj) {
+      postFBPageFeed(linkObj, 'feed', notify, notifyError, fbPageAccessToken)
     } else {
       setIsFBPosting(false)
       notifyError('Empty field on allowed.')
     }
   }
-
-  const uploader = Uploader({ apiKey: "public_kW15bXd4isLTNcPdgjNbAT98EkwJ" })
 
   const notify = (msg) => {
     toast.success(msg, {
@@ -78,8 +69,6 @@ const page = () => {
       progress: undefined,
       theme: "light",
     });
-    setLinkObj({ access_token: linkObj.access_token })
-    setImageName('')
     setIsFBPosting(false)
   }
   const notifyError = (msg) => {
@@ -93,10 +82,27 @@ const page = () => {
       progress: undefined,
       theme: "light",
     })
-    setLinkObj({ access_token: linkObj.access_token })
-    setImageName('')
     setIsFBPosting(false)
   }
+
+  const handleScheduleChange = (event) => {
+    const selectedTime = new Date(event.target.value)
+    console.log(Math.floor(selectedTime.getTime() / 1000))
+  };
+
+  const [text, setText] = useState('');
+
+  const handleInputChange = (event) => {
+    const inputText = event.target.value
+    const modifiedText = inputText.replace(/(#)([a-z\d-]+)/gi, '<span class="py-1 bg-base-200 rounded-2xl">$&</span>')
+    setText(modifiedText)
+  };
+
+  // const handleBlur = () => {
+  //   const modifiedText = text.replace(/\B#(\w*[a-zA-Z]+\w*)/g, '<span class="px-2 py-1 bg-base-200">#$1</span>');
+  //   console.log('modifiedText: ', modifiedText);
+  //   textareaRef.current.innerHTML = modifiedText;
+  // };
 
   return (
     <main className="flex flex-col">
@@ -104,7 +110,7 @@ const page = () => {
         <div className='flex flex-col w-full'>
           {
             fbLoginData
-              ? <>
+              ? <div className='transition-all'>
                 <div className='flex justify-between items-center'>
                   <h1 className='text-3xl font-medium'>You're logged-in :</h1>
                   <div className='flex items-center'>
@@ -120,6 +126,64 @@ const page = () => {
                 <h1 className='text-3xl font-medium'>Create post</h1>
                 <hr className='my-4' />
                 <div className='bg-base-300 p-4 rounded-2xl'>
+                  {/* <div className="form-control w-full">
+                    <div className="form-control w-full mb-4">
+                      <label className="label">
+                        <span className="text-base font-medium">
+                          {
+                            uploadType.isLink ? "What's on your mind?" : uploadType.isPhoto ? 'Photo caption :' : uploadType.isVideo ? 'Video title :' : "What's on your mind?"
+                          }
+                        </span>
+                      </label>
+                      <textarea onChange={(e) => {
+                        if (uploadType.isLink) {
+                          setLinkObj({ ...linkObj, message: e.target.value })
+                        }
+                        if (uploadType.isPhoto) {
+                          setPhotoObj({ ...photoObj, message: e.target.value })
+                        }
+                        if (uploadType.isVideo) {
+                          setVideoObj({ ...videoObj, title: e.target.value })
+                        }
+                      }} className="textarea textarea-bordered textarea-primary" placeholder="Type text here" />
+                    </div>
+                  </div> */}
+                  {
+                    uploadType.isLink &&
+                    <div className="form-control w-full">
+                      <div className="form-control w-full mb-4">
+                        <label className="label">
+                          <span className="text-base font-medium">What's on your mind? *</span>
+                        </label>
+                        <textarea onChange={(e) => setLinkObj({ ...linkObj, message: e.target.value })} className="textarea textarea-bordered textarea-primary" value={linkObj.message || ''} placeholder="Type text here" />
+                      </div>
+                    </div>
+                  }
+
+                  {
+                    uploadType.isPhoto &&
+                    <div className="form-control w-full">
+                      <div className="form-control w-full mb-4">
+                        <label className="label">
+                          <span className="text-base font-medium">Photo caption :</span>
+                        </label>
+                        <textarea onChange={(e) => setPhotoObj({ ...photoObj, message: e.target.value })} className="textarea textarea-bordered textarea-primary" value={photoObj.message || ''} placeholder="Type text here" />
+                      </div>
+                    </div>
+                  }
+
+                  {
+                    uploadType.isVideo &&
+                    <div className="form-control w-full">
+                      <div className="form-control w-full mb-4">
+                        <label className="label">
+                          <span className="text-base font-medium">Video title :</span>
+                        </label>
+                        <textarea onChange={(e) => setVideoObj({ ...videoObj, title: e.target.value })} value={videoObj.title || ''} className="textarea textarea-bordered textarea-primary" placeholder="Type text here" />
+                      </div>
+                    </div>
+                  }
+
                   <div className='mb-4'>
                     <label className="label">
                       <span className="text-base font-medium">Select one option :</span>
@@ -140,12 +204,6 @@ const page = () => {
                   {
                     uploadType.isLink &&
                     <div className="form-control w-full">
-                      <div className="form-control w-full mb-4">
-                        <label className="label">
-                          <span className="text-base font-medium">Write text :</span>
-                        </label>
-                        <textarea onChange={(e) => setLinkObj({ ...linkObj, message: e.target.value })} className="textarea textarea-bordered textarea-primary" value={linkObj.message || ''} placeholder="Type text here" />
-                      </div>
                       <label className="label">
                         <span className="text-base font-medium">Attach your link here :</span>
                       </label>
@@ -156,40 +214,64 @@ const page = () => {
                         placeholder="Type link here"
                         className="input input-bordered input-primary w-full"
                       />
+                      <SchedulePost
+                        isSchedule={isSchedule}
+                        setIsSchedule={setIsSchedule}
+                        setDateTime={(scheduledTimestamp) => {
+                          setLinkObj({ ...linkObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
+                        }}
+                      />
+                      {/* <input
+                        type="datetime-local"
+                        className='p-2 rounded-md border border-neutral'
+                        value={linkObj.scheduled_publish_time}
+                        onChange={(e) => {
+                          const scheduledTimestamp = new Date(e.target.value).getTime() / 1000
+                          setLinkObj({ ...linkObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
+                        }}
+                      /> */}
                     </div>
                   }
 
                   {
                     uploadType.isPhoto &&
                     <div className="form-control w-full">
-                      <div className="form-control w-full mb-4">
+                      {/* <ContentEditable
+                        html={text}
+                        onChange={handleInputChange}
+                        className="textarea textarea-bordered textarea-primary"
+                        tagName="div" // Specify a tagName to prevent nested spans
+                      /> */}
+                      <div className="form-control">
                         <label className="label">
-                          <span className="text-base font-medium">Photo caption :</span>
+                          <span className="text-base font-medium">{'Import photos (.jpeg, .jpg, .png) : *'}</span>
                         </label>
-                        <textarea onChange={(e) => setPhotoObj({ ...photoObj, message: e.target.value })} className="textarea textarea-bordered textarea-primary" value={photoObj.message || ''} placeholder="Type text here" />
+                        <input
+                          type="file"
+                          onChange={(event) => {
+                            setPhotoObj({ ...photoObj, source: event.target.files[0] })
+                            setPreviewImg(URL.createObjectURL(event.target.files[0]))
+                          }} className="file-input file-input-bordered file-input-md w-full"
+                        />
                       </div>
-                      <label className="label">
-                        <span className="text-base font-medium">{'Import photos (.jpeg, .jpg, .png) :'}</span>
-                      </label>
-                      <UploadButton
-                        uploader={uploader}
-                        onComplete={(files) => {
-                          if (files) {
-                            setImageName(files[0]?.originalFile.file.name)
-                            setPhotoObj({ ...photoObj, url: files.map(x => x.fileUrl).join("\n") })
-                          }
+                      {previewImg && <button className="btn btn-neutral mt-4" onClick={() => window.preview_image.showModal()}>Preview-photo</button>}
+                      <dialog id="preview_image" className="modal">
+                        <form method="dialog" className="modal-box">
+                          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                          <h3 className="font-bold text-lg">Selected photo</h3>
+                          <img src={previewImg} alt='Preview image' className='max-h-full pt-4 object-contain' />
+                        </form>
+                        <form method="dialog" className="modal-backdrop">
+                          <button>close</button>
+                        </form>
+                      </dialog>
+                      <SchedulePost
+                        isSchedule={isSchedule}
+                        setIsSchedule={setIsSchedule}
+                        setDateTime={(scheduledTimestamp) => {
+                          setPhotoObj({ ...photoObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
                         }}
-                      >
-                        {({ onClick }) =>
-                          <div className="rounded-lg text-white flex justify-start bg-neutral border border-neutral overflow-hidden items-center cursor-pointer" onClick={onClick}>
-                            <h1 className='p-3 basis-1/4 text-lg font-medium text-center'>CHOOSE PHOTO</h1>
-                            <div className='p-3 basis-3/4 text-lg bg-white text-neutral font-medium '>{imageName || 'No photo chosen'}</div>
-                          </div>
-                        }
-                      </UploadButton>
-                      {/* <div>
-                      <img src='https://upcdn.io/kW15bXd/raw/uploads/2023/07/19/Benefits-of-ReactJS-2FWH.jpg' alt='Image' />
-                    </div> */}
+                      />
                     </div>
                   }
 
@@ -198,46 +280,51 @@ const page = () => {
                     <div className="form-control w-full">
                       <div className="form-control w-full mb-4">
                         <label className="label">
-                          <span className="text-base font-medium">Video title :</span>
-                        </label>
-                        <input onChange={(e) => setVideoObj({ ...videoObj, title: e.target.value })} value={videoObj.title || ''} type="text" placeholder="Type here" className="input input-bordered input-primary" />
-                      </div>
-                      <div className="form-control w-full mb-4">
-                        <label className="label">
                           <span className="text-base font-medium">Video description :</span>
                         </label>
                         <textarea onChange={(e) => setVideoObj({ ...videoObj, description: e.target.value })} className="textarea textarea-bordered textarea-primary" value={videoObj.description || ''} placeholder="Type here" />
                       </div>
-                      <label className="label">
-                        <span className="text-base font-medium">{'Import video (.mp4, .mov, .avi) :'}</span>
-                      </label>
-                      <UploadButton
-                        uploader={uploader}
-                        onComplete={(files) => {
-                          if (files) {
-                            setVideoName(files[0]?.originalFile.file.name)
-                            setVideoObj({ ...videoObj, file_url: files.map(x => x.fileUrl).join("\n"), file_size: files[0]?.originalFile.file.size })
-                          }
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="text-base font-medium">{'Import video (.mp4, .mov, .avi) : *'}</span>
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(event) => {
+                            setVideoObj({ ...videoObj, source: event.target.files[0] })
+                            setPreviewVideo(URL.createObjectURL(event.target.files[0]))
+                          }} className="file-input file-input-bordered file-input-md w-full"
+                        />
+                      </div>
+                      {previewVideo && <button className="btn btn-neutral mt-4" onClick={() => window.preview_video.showModal()}>Preview-video</button>}
+                      <dialog id="preview_video" className="modal">
+                        <form method="dialog" className="modal-box flex flex-col items-center">
+                          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                          <h3 className="font-bold text-lg">Selected photo</h3>
+                          <video src={previewVideo} controls className='max-h-full pt-4 object-contain'>
+                            Your browser does not support the video tag.
+                          </video>
+                        </form>
+                        <form method="dialog" className="modal-backdrop">
+                          <button>close</button>
+                        </form>
+                      </dialog>
+                      <SchedulePost
+                        isSchedule={isSchedule}
+                        setIsSchedule={setIsSchedule}
+                        setDateTime={(scheduledTimestamp) => {
+                          setVideoObj({ ...videoObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
                         }}
-                      >
-                        {({ onClick }) =>
-                          <div className="rounded-lg text-white flex justify-start bg-neutral border border-neutral overflow-hidden items-center cursor-pointer" onClick={onClick}>
-                            <h1 className='p-3 basis-1/4 text-lg font-medium text-center'>CHOOSE VIDEO</h1>
-                            <div className='p-3 basis-3/4 text-lg bg-white text-neutral font-medium '>{videoName || 'No video chosen'}</div>
-                          </div>
-                        }
-                      </UploadButton>
+                      />
                     </div>
                   }
 
                 </div>
-                <hr className='my-4' />
-                <div className='flex justify-between items-center'>
+                <div className='flex justify-between items-center my-4'>
                   <button onClick={handleSubmit} className="btn btn-neutral text-white w-[200px]">Post</button>
                   <button onClick={() => window.open("https://www.facebook.com/viral.reactjs", "_blank")} className="btn btn-neutral text-white w-[200px]">Open FB-page</button>
                 </div>
-                <hr className='my-4' />
-              </>
+              </div>
               : <>
                 <h1 className='text-3xl font-medium'>Facebook-login required :</h1>
                 <hr className='my-4' />

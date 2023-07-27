@@ -4,22 +4,51 @@ import { useCallback } from 'react'
 
 const usePostFeedIntoFBPage = () => {
 
-  const postFBPageFeed = useCallback(async (obj, path, notify, notifyError) => {
-    const options = {
-      method: 'POST',
-      url: `${BASE_URL}/${FB_PAGE_ID}/${path}`,
-      params: obj,
-    }
-    await axios.request(options).then((response) => {
-      if (response.status === 200) {
-        notify('Posted successfully on facebook.')
-        console.log(response)
+  const postFBPageFeed = useCallback(async (object, path, notify, notifyError, fbPageAccessToken) => {
+    const formData = new FormData()
+    Object.keys(object).forEach(key => formData.append(key, object[key]))
+
+    await axios.post(
+      `${BASE_URL}/${FB_PAGE_ID}/${path}?access_token=${fbPageAccessToken}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       }
-    }).catch((error) => {
-      notifyError('An error occur.')
-      console.error('Error--------', error)
-    })
+    )
+      .then((response) => {
+        console.log('response: ', response.data)
+        notify('Posted successfully on facebook.')
+      })
+      .catch((error) => {
+        console.error(error)
+        notifyError('An error occur.')
+      })
   }, [])
+
+  // const handleUpload = (object, notify, notifyError, fbPageAccessToken) => {
+  //   const formData = new FormData()
+  //   Object.keys(object).forEach(key => formData.append(key, object[key]))
+
+  //   axios.post(
+  //     `https://graph.facebook.com/v17.0/${FB_PAGE_ID}/photos?access_token=${fbPageAccessToken}`,
+  //     formData,
+  //     {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       },
+  //     }
+  //   )
+  //     .then((response) => {
+  //       console.log('response: ', response.data)
+  //       notify('Posted successfully on facebook.')
+  //     })
+  //     .catch((error) => {
+  //       console.error(error)
+  //       notifyError('An error occur.')
+  //     })
+  // }
 
 
   return { postFBPageFeed }

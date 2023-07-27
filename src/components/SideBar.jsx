@@ -1,15 +1,17 @@
 "use client"
 
+import { accessTokenContext } from '@/app/layout'
 import { TABS } from '@/constants/constants'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import React from 'react'
+import React, { useContext } from 'react'
 
 const SideBar = () => {
   const { uploadByName } = useParams()
+  const { isSidebar } = useContext(accessTokenContext)
   return (
     <>
-      <ul className="menu menu-lg bg-base-300 rounded-2xl">
+      <ul className={`fixed z-[99] h-full w-full md:w-fit menu menu-lg bg-base-300 ${isSidebar ? 'translate-x-0' : '-translate-x-full md:-translate-x-44'} transition-all`}>
         {
           TABS.map((elm) => (
             <li key={elm.id}>

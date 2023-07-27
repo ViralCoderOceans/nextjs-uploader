@@ -13,6 +13,11 @@ export const accessTokenContext = createContext()
 export default function RootLayout({ children }) {
   const [fbLoginData, setFbLoginData] = useState(null)
   const [isFBPosting, setIsFBPosting] = useState(false)
+  const [isSidebar, setIsSidebar] = useState(true)
+
+  const handleSidebar = () => {
+    setIsSidebar(isSidebar ? false : true)
+  }
 
   useEffect(() => {
     setFbLoginData(localStorage.getItem('fbLoginData') ? JSON.parse(localStorage.getItem('fbLoginData')) : null)
@@ -35,23 +40,25 @@ export default function RootLayout({ children }) {
         {/* <link rel="icon" href="/favicon.ico" sizes="any" /> */}
       </head>
       <body className={`${inter.className} flex flex-col h-screen relative overflow-hidden`}>
-        <Navbar />
-        <div className='h-screen bg-white flex text-black p-4 overflow-y-auto' data-theme="light">
-          <SideBar />
-          <accessTokenContext.Provider
-            value={{
-              fbLoginData,
-              setFbLoginData,
-              isFBPosting,
-              setIsFBPosting,
-              updateFBLocalStorage
-            }}
-          >
-            <div className='w-full bg-accent rounded-2xl p-5'>
+        <accessTokenContext.Provider
+          value={{
+            fbLoginData,
+            setFbLoginData,
+            isFBPosting,
+            setIsFBPosting,
+            updateFBLocalStorage,
+            isSidebar,
+            handleSidebar
+          }}
+        >
+          <Navbar />
+          <div className='h-full mt-20 bg-accent flex text-black overflow-hidden' data-theme="light">
+            <SideBar />
+            <div className={`w-full h-full ${isSidebar ? 'md:ml-[149px]' : 'ml-0'} transition-all overflow-y-auto p-10`}>
               {children}
             </div>
-          </accessTokenContext.Provider>
-        </div>
+          </div>
+        </accessTokenContext.Provider>
       </body>
     </html>
   )
