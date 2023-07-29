@@ -7,6 +7,7 @@ import { LoginSocialFacebook } from 'reactjs-social-login'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import SchedulePost from '../SchedulePost/page'
+import usePostReelOnFB from '@/hooks/usePostReelOnFB'
 // import ContentEditable from 'react-contenteditable'
 // import placeHolderImg from '../../assets/placeholder.png'
 
@@ -14,6 +15,8 @@ const page = () => {
   const [linkObj, setLinkObj] = useState({})
   const [photoObj, setPhotoObj] = useState({})
   const [videoObj, setVideoObj] = useState({})
+  const [reelObj, setReelObj] = useState({})
+  console.log('reelObj: ', reelObj?.source?.size)
   const [previewImg, setPreviewImg] = useState()
   const [previewVideo, setPreviewVideo] = useState()
   const [uploadType, setUploadType] = useState({ isLink: true })
@@ -26,6 +29,7 @@ const page = () => {
     updateFBLocalStorage
   } = useContext(accessTokenContext)
   const { postFBPageFeed } = usePostFeedIntoFBPage()
+  const { postFBPageReel } = usePostReelOnFB()
   const { fbPageAccessToken, setFbPageAccessToken, getFbPageAccessToken } = useGetFBPageAccessToken()
 
   useEffect(() => {
@@ -47,6 +51,8 @@ const page = () => {
       postFBPageFeed(photoObj, 'photos', notify, notifyError, fbPageAccessToken)
     } else if (uploadType.isVideo && videoObj.source) {
       postFBPageFeed(videoObj, 'videos', notify, notifyError, fbPageAccessToken)
+    } else if (uploadType.isReel && reelObj.source) {
+      postFBPageReel('video_reels', fbPageAccessToken, reelObj, notify, notifyError)
     } else if (uploadType.isLink && linkObj) {
       postFBPageFeed(linkObj, 'feed', notify, notifyError, fbPageAccessToken)
     } else {
@@ -158,6 +164,18 @@ const page = () => {
                     </div>
                   }
 
+                  {
+                    uploadType.isReel &&
+                    <div className="form-control w-full">
+                      <div className="form-control w-full mb-4">
+                        <label className="label">
+                          <span className="text-base font-medium">Reel title :</span>
+                        </label>
+                        <textarea onChange={(e) => setReelObj({ ...reelObj, title: e.target.value })} value={reelObj.title || ''} className="textarea textarea-bordered textarea-primary" placeholder="Type text here" />
+                      </div>
+                    </div>
+                  }
+
                   <div className='mb-4'>
                     <label className="label">
                       <span className="text-base font-medium">Select one option :</span>
@@ -167,10 +185,13 @@ const page = () => {
                         Attach Link
                       </button>
                       <button onClick={() => setUploadType({ isPhoto: true })} className={`cursor-pointer basis-1/2 flex justify-center md:text-lg font-medium py-1 ${!uploadType.isPhoto ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} hover:bg-neutral hover:text-white rounded-lg transition-all`}>
-                        Upload photo
+                        Upload Photo
                       </button>
                       <button onClick={() => setUploadType({ isVideo: true })} className={`cursor-pointer basis-1/2 flex justify-center md:text-lg font-medium py-1 ${!uploadType.isVideo ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} hover:bg-neutral hover:text-white rounded-lg transition-all`}>
-                        Upload video
+                        Upload Video
+                      </button>
+                      <button onClick={() => setUploadType({ isReel: true })} className={`cursor-pointer basis-1/2 flex justify-center md:text-lg font-medium py-1 ${!uploadType.isReel ? 'hover:bg-neutral hover:text-white' : 'bg-neutral text-white'} hover:bg-neutral hover:text-white rounded-lg transition-all`}>
+                        Upload Reel
                       </button>
                     </div>
                   </div>
@@ -306,6 +327,59 @@ const page = () => {
                         }}
                         setDateTime={(scheduledTimestamp) => {
                           setVideoObj({ ...videoObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
+                        }}
+                      />
+                    </div>
+                  }
+
+                  {
+                    uploadType.isReel &&
+                    <div className="form-control w-full">
+                      <div className="form-control w-full mb-4">
+                        <label className="label">
+                          <span className="text-base font-medium">Reel description :</span>
+                        </label>
+                        <textarea onChange={(e) => setReelObj({ ...reelObj, description: e.target.value })} className="textarea textarea-bordered textarea-primary" value={reelObj.description || ''} placeholder="Type here" />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="text-base font-medium">{'Import video (.mp4, .mov, .avi) : *'}</span>
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(event) => {
+                            setReelObj({ ...reelObj, source: event.target.files[0] })
+                            setPreviewVideo(URL.createObjectURL(event.target.files[0]))
+                          }} className="file-input file-input-bordered file-input-md w-full"
+                        />
+                      </div>
+                      {previewVideo && <button className="btn btn-neutral mt-4" onClick={() => window.preview_video.showModal()}>Preview-video</button>}
+                      <dialog id="preview_video" className="modal">
+                        <form method="dialog" className="modal-box flex flex-col items-center">
+                          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                          <h3 className="font-bold text-lg">Selected photo</h3>
+                          <video src={previewVideo} controls className='max-h-full pt-4 object-contain'>
+                            Your browser does not support the video tag.
+                          </video>
+                        </form>
+                        <form method="dialog" className="modal-backdrop">
+                          <button>close</button>
+                        </form>
+                      </dialog>
+                      <SchedulePost
+                        isSchedule={isSchedule}
+                        setIsSchedule={setIsSchedule}
+                        setPublishNow={() => {
+                          let refObj = reelObj
+                          delete refObj.scheduled_publish_time
+                          delete refObj.published
+                          setReelObj({ ...refObj })
+                        }}
+                        setSchedule={() => {
+                          setReelObj({ ...reelObj, published: false })
+                        }}
+                        setDateTime={(scheduledTimestamp) => {
+                          setReelObj({ ...reelObj, scheduled_publish_time: JSON.stringify(scheduledTimestamp), published: false })
                         }}
                       />
                     </div>

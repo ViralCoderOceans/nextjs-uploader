@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { DateTimePicker, LocalizationProvider, renderTimeViewClock } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -8,7 +8,7 @@ const SchedulePost = ({ isSchedule, setIsSchedule, setDateTime, setSchedule, set
   const [value, setValue] = useState(dayjs(new Date()))
   const [maxValue, setMaxValue] = useState()
   const [minValue, setMinValue] = useState()
-  const [isValid, setIsValid] = useState(true)
+  const [error, setError] = React.useState(null);
 
   useEffect(() => {
     const scheduledTimestamp = Math.floor(new Date().getTime())
@@ -16,6 +16,23 @@ const SchedulePost = ({ isSchedule, setIsSchedule, setDateTime, setSchedule, set
     setMinValue(new Date(scheduledTimestamp + 1500000))
     setValue(dayjs(new Date(scheduledTimestamp + 1500000)))
   }, [])
+
+  const errorMessage = useMemo(() => {
+    switch (error) {
+      case 'maxDate':
+      case 'minDate': {
+        return 'Scheduled posts need to be shared between 25 minutes and 29 days from when you create them.';
+      }
+
+      case 'invalidDate': {
+        return 'Your date and time are not valid';
+      }
+
+      default: {
+        return '';
+      }
+    }
+  }, [error]);
 
   return (
     <>
@@ -59,12 +76,15 @@ const SchedulePost = ({ isSchedule, setIsSchedule, setDateTime, setSchedule, set
                 maxDateTime={dayjs(maxValue)}
                 minDateTime={dayjs(minValue)}
                 onChange={(e) => {
-                  setIsValid(true)
+                  // setIsValid(true)
                   const scheduledTimestamp = Math.floor(new Date(e?.$d).getTime() / 1000)
                   setDateTime(scheduledTimestamp)
                 }}
-                onError={() => {
-                  setIsValid(false)
+                onError={(newError) => setError(newError)}
+                slotProps={{
+                  textField: {
+                    helperText: errorMessage,
+                  },
                 }}
                 onOpen={() => {
                   const scheduledTimestamp = Math.floor(new Date().getTime())
@@ -75,7 +95,7 @@ const SchedulePost = ({ isSchedule, setIsSchedule, setDateTime, setSchedule, set
               />
             </DemoContainer>
           </LocalizationProvider>
-          {!isValid && <p className='text-red-500 text-sm pt-1'>Scheduled posts need to be shared between 25 minutes and 29 days from when you create them.</p>}
+          {/* {!isValid && <p className='text-red-500 text-sm pt-1'>Scheduled posts need to be shared between 25 minutes and 29 days from when you create them.</p>} */}
         </>
       }
     </>
