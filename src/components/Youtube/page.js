@@ -1,16 +1,11 @@
-import React from 'react'
-import { google } from 'googleapis'
+import React, { useState } from 'react'
 import { YOUTUBE_API_KEY } from '@/constants/constants'
+import axios from 'axios'
 
 const page = () => {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [videoFile, setVideoFile] = useState(null)
-
-  const youtube = google.youtube({
-    version: 'v3',
-    auth: YOUTUBE_API_KEY,
-  })
 
   const handleTitleChange = (event) => {
     setTitle(event.target.value)
@@ -25,33 +20,36 @@ const page = () => {
   }
 
   const handleSubmit = async (event) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const requestBody = {
+    const metadata = {
       snippet: {
         title: title,
         description: description,
       },
       status: {
-        privacyStatus: 'private', // Privacy status of the uploaded video
+        privacyStatus: 'private',
       },
-    }
+    };
 
-    const requestParams = {
-      part: 'snippet,status',
-      requestBody: requestBody,
-      media: {
-        body: videoFile,
-      },
-    }
+    const formData = new FormData()
+    formData.append('metadata', JSON.stringify(metadata))
+    formData.append('video', videoFile)
 
     try {
-      const response = await youtube.videos.insert(requestParams)
+      const response = await axios.post(
+        `https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&key=${YOUTUBE_API_KEY}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
+
       console.log('Video uploaded:', response.data)
-      // Handle success or redirect to a success page
     } catch (error) {
       console.error('Error uploading video:', error)
-      // Handle error or display error message
     }
   }
 
