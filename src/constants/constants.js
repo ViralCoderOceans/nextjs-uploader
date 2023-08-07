@@ -24,3 +24,5 @@ export const TABS = [
 export const BASE_URL = 'https://graph.facebook.com/v17.0/'
 
 export const FB_PAGE_ID = '106338012535000'
+
+export const YOUTUBE_API_KEY = 'AIzaSyAPE6vsPOXy1HOx8xbBBmQuyNwm_8BqvtI'
