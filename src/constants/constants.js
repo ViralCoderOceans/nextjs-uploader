@@ -13,12 +13,7 @@ export const TABS = [
     id: 3,
     name: 'Youtube',
     path: 'to-youtube'
-  },
-  {
-    id: 3,
-    name: 'Testing',
-    path: 'to-facebook-testing'
-  },
+  }
 ]
 
 export const BASE_URL = 'https://graph.facebook.com/v17.0/'
