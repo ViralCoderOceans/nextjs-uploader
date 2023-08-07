@@ -29,7 +29,7 @@ const page = () => {
     updateFBLocalStorage
   } = useContext(accessTokenContext)
   const { postFBPageFeed } = usePostFeedIntoFBPage()
-  const { postFBPageReel, postReel, uploadVideo } = usePostReelOnFB()
+  const { postFBPageReel } = usePostReelOnFB()
   const { fbPageAccessToken, setFbPageAccessToken, getFbPageAccessToken } = useGetFBPageAccessToken()
 
   useEffect(() => {
@@ -51,10 +51,8 @@ const page = () => {
       postFBPageFeed(photoObj, 'photos', notify, notifyError, fbPageAccessToken)
     } else if (uploadType.isVideo && videoObj.source) {
       postFBPageFeed(videoObj, 'videos', notify, notifyError, fbPageAccessToken)
-    } else if (uploadType.isReel) {
-      // postFBPageReel('video_reels', fbPageAccessToken, reelObj, notify, notifyError)
-      // postReel(reelObj)
-      uploadVideo(fbPageAccessToken)
+    } else if (uploadType.isReel && reelObj.source) {
+      postFBPageReel('video_reels', fbPageAccessToken, reelObj, notify, notifyError)
     } else if (uploadType.isLink && linkObj) {
       postFBPageFeed(linkObj, 'feed', notify, notifyError, fbPageAccessToken)
     } else {
