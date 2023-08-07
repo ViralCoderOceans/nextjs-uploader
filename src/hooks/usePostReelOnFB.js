@@ -102,7 +102,7 @@ const usePostReelOnFB = () => {
       })
   }, [])
 
-  const uploadVideo = useCallback(async (video_id, fbPageAccessToken) => {
+  const uploadVideo = useCallback(async (fbPageAccessToken) => {
 
     // await axios.post(
     //   `https://rupload.facebook.com/video-upload/v17.0/${video_id}`,
@@ -121,17 +121,14 @@ const usePostReelOnFB = () => {
     //     console.log('error', error)
     //   })
 
-    const testURL = `https://rupload.facebook.com/video-upload/v17.0/${video_id}`
+    const testURL = 'https://rupload.facebook.com/video-upload/v17.0/271644522147053'
     const myInit = {
-      method: 'GET',
+      method: 'POST',
       mode: 'no-cors',
       headers: {
         'Authorization': `OAuth ${fbPageAccessToken}`,
         'file_url': 'https://upcdn.io/kW15bXd/raw/uploads/2023/07/20/videoplayback-2gXE.mp4'
-      },
-      withCredentials: true,
-      credentials: 'same-origin',
-      crossdomain: true
+      }
     };
 
     fetch(testURL, myInit).then((res) => console.log('res: ', JSON.stringify(res))).catch((e) => console.log('e: ', e))
@@ -174,7 +171,7 @@ const usePostReelOnFB = () => {
       })
   }, [])
 
-  return { postFBPageReel, postReel }
+  return { postFBPageReel, postReel, uploadVideo }
 }
 
 export default usePostReelOnFB
