@@ -398,6 +398,7 @@ const page = () => {
                   <LoginSocialFacebook
                     appId='211579308138783'
                     onResolve={(res) => {
+                      console.log('res: ', res)
                       setFbLoginData(res.data)
                       updateFBLocalStorage()
                       console.log('Facebook login API called.')
